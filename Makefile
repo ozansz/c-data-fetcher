@@ -3,11 +3,13 @@ CC = gcc
 CFLAGS = -Wall -ansi -pedantic-errors
 INCLUDES = -I$(INCDIR)
 
-test: test.o
-	$(CC) $(CFLAGS) $(INCLUDES) -o test test.o
+all: test
 
-test.o: test.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c test.c
+test:
+	$(CC) $(CFLAGS) $(INCLUDES) -o test test.c $(INCDIR)/*.c
+	rm -f *.o
+
+.PHONY: clean
 
 clean:
 	rm -f test *.o
