@@ -18,14 +18,14 @@ XObject *XObject_Creat(void) {
 }
 
 void XObject_Forget(XObject *obj) {
-    printf("\n[CALL] XObject_Forget");
+    /*printf("\n[CALL] XObject_Forget");*/
 
     if (obj == NULL) {
-        printf("(NULL)\n");
+        /*printf("(NULL)\n");*/
         return;
     }
         
-    printf("(%p) (type: %d)\n", (void *)obj, obj->ob_head.type);
+    /*printf("(%p) (type: %d)\n", (void *)obj, obj->ob_head.type);*/
 
     if (XObject_TYPE(obj) != XType_None && XObject_DESTRUCTOR(obj) != NULL)
         XObject_DESTRUCTOR(obj)(obj);

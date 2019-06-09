@@ -37,4 +37,6 @@ XT_Number __var_size(XT_SymType type);
 
 void XVarSym_Forget(void *sym);
 
+void XSymbolTable_LinearDump(XObject *tab);
+
 #endif

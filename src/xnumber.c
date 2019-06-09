@@ -14,6 +14,8 @@ XObject *XNumber_Creat(XT_Number *valptr) {
         return NULL;
 
     num->ob_head.type = XType_Number;
+    num->ob_head.destructor = XNumber_Forget;
+
     num->val = *valptr;
 
     return XObject_CAST(num);
@@ -29,6 +31,8 @@ XObject *XNumber_FromString(XObject *str) {
     for (nval = 0; (ch = XStringIter_IterNext(striter)) != XSTRING_ENDOFITER; )
         nval = char_to_num(ch) + 10 * nval;
 
+    XObject_Forget(striter);
+
     return XNumber_Creat(&nval);
 }
 
@@ -41,15 +45,23 @@ XObject *XFPNumber_Creat(XT_FPNumber *valptr) {
         return NULL;
 
     fpnum->ob_head.type = XType_FPNumber;
+    fpnum->ob_head.destructor = XFPNumber_Forget;
+
     fpnum->val = *valptr;
 
     return XObject_CAST(fpnum);
 }
 
 void XNumber_Forget(void *num) {
+    if (num == NULL)
+        return;
+
     free(num);
 }
 
 void XFPNumber_Forget(void *fpnum) {
+    if (fpnum == NULL)
+        return;
+        
     free(fpnum);
 }

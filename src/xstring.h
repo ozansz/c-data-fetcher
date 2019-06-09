@@ -35,6 +35,7 @@ XT_StringSize XString_ScanUntilChar(FILE *stream, XObject *str, char stopchar);
 void XString_Dump(XObject *str);
 char *XString_GetString(XObject *str);
 int XString_CompareWith(XObject *str, char *cmpstr, XT_StringSize size);
+XObject *XString_Duplicate(XObject *str);
 
 #define XString_ScanLine(stream, str) XString_ScanUntilChar(stream, str, '\n')
 

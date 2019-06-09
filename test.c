@@ -24,21 +24,27 @@ int main(int argc, char **argv, char **envp) {
     fnam = XString_GetString(str);
     datafile = fopen(fnam, "r");
 
+    XObject_Forget(str);
     free(fnam);
 
+    str = XString_Creat();
     XString_ScanLine(stdin, str);
 
     lex = XLEX_LexString(str);
-    _XLEX_Dump(lex);
+
+    XObject_Forget(str);
 
     symtab = XSymbolTable_ConstructFromLEX(lex, datafile);
     _XHashTable_Debug(symtab);
 
     XObject_Forget(lex);
 
+    str = XString_Creat();
     XString_ScanLine(stdin, str);
+    
     lex = XLEX_LexString(str);
-    _XLEX_Dump(lex);
+
+    XObject_Forget(str);
 
     lexiter = XLEX_GetIter(lex);
     tokindx = 0;
@@ -63,7 +69,6 @@ int main(int argc, char **argv, char **envp) {
         }
     }
 
-    XObject_Forget(str);
     XObject_Forget(lex);
     XObject_Forget(symtab);
     XObject_Forget(lexiter);

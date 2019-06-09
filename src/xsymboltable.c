@@ -60,6 +60,7 @@ XObject *XVarSymObject_Creat(XStringObject *name, XT_SymType type, XT_Number fil
 void XVarSym_AssignValueFromStream(XObject *sym, XObject *ht, FILE *stream) {
     long seek_store;
     XT_Number _ref_val;
+    XT_FPNumber _fpref_val;
     XVarSymObject *symobj;
     XObject *refobj;
 
@@ -69,8 +70,13 @@ void XVarSym_AssignValueFromStream(XObject *sym, XObject *ht, FILE *stream) {
         seek_store = ftell(stream);
         fseek(stream, symobj->file_pos, SEEK_SET);
 
-        fread(&_ref_val, __var_size(symobj->type), 1, stream);
-        symobj->varobj = XNumber_Creat(&_ref_val);
+        if (symobj->type == XSYT_double || symobj->type == XSYT_float) {
+            fread(&_fpref_val, __var_size(symobj->type), 1, stream);
+            symobj->varobj = XFPNumber_Creat(&_fpref_val);
+        } else {
+            fread(&_ref_val, __var_size(symobj->type), 1, stream);
+            symobj->varobj = XNumber_Creat(&_ref_val);
+        }
         
         fseek(stream, seek_store, SEEK_SET);
     } else {
@@ -121,8 +127,12 @@ void XVarSym_AssignValueFromStream(XObject *sym, XObject *ht, FILE *stream) {
 }
 
 void XVarSym_Dump(XObject *sym) {
+    char *name;
+
+    name = XString_GetString(XObject_CAST(XVarSymObject_CAST(sym)->name));
+    
     printf("\nSymbol at <%p>", (void *)sym);
-    printf("\n  name      : %s", XString_GetString(XObject_CAST(XVarSymObject_CAST(sym)->name)));
+    printf("\n  name      : %s", name);
     printf("\n  type      : %d", XVarSymObject_CAST(sym)->type);
     printf("\n  file pos  : %ld", XVarSymObject_CAST(sym)->file_pos);
     printf("\n  arr dim   : %d", XVarSymObject_CAST(sym)->arrspec.arr_dim);
@@ -143,6 +153,8 @@ void XVarSym_Dump(XObject *sym) {
 
         if (XVarSymObject_CAST(sym)->varobj->ob_head.type == XType_Number)
             printf(" (%ld)", XNumberObject_CAST(XVarSymObject_CAST(sym)->varobj)->val);
+        if (XVarSymObject_CAST(sym)->varobj->ob_head.type == XType_FPNumber)
+            printf(" (%f)", XFPNumberObject_CAST(XVarSymObject_CAST(sym)->varobj)->val);
 
         printf("\n  varobj_typ: %d", XVarSymObject_CAST(sym)->varobj->ob_head.type);
     }
@@ -150,7 +162,7 @@ void XVarSym_Dump(XObject *sym) {
 
 XObject *XSymbolTable_ConstructFromLEX(XObject *lex, FILE *datastream) {
     int lexiterstatcode = 0, tokindx = 0;
-    XObject *ht, *symbol, *lexiter, *currtok, *tokarr[8];
+    XObject *ht, *symbol, *lexiter, *currtok, *tokarr[8], *symname;
     XT_HTSize tabsize;
     XT_Number filepos = 0;
     XT_SymType symtype;
@@ -216,7 +228,8 @@ XObject *XSymbolTable_ConstructFromLEX(XObject *lex, FILE *datastream) {
                 return NULL;
             }
 
-            symbol = XVarSymObject_Creat(XStringObject_CAST(XLEXTokenObject_CAST(tokarr[1])->dataobject), symtype, filepos, arrspec);
+            symname = XString_Duplicate(XLEXTokenObject_CAST(tokarr[1])->dataobject);
+            symbol = XVarSymObject_Creat(XStringObject_CAST(symname), symtype, filepos, arrspec);
             XVarSym_AssignValueFromStream(symbol, ht, datastream);
             XHashTable_InsertObject(ht, symbol, XStringObject_CAST(XLEXTokenObject_CAST(tokarr[1])->dataobject));
 
@@ -252,17 +265,27 @@ XObject *XSymbolTable_RetrieveObject(XObject *ht, XStringObject *key) {
     keyhash = htobj->hashfn(key, htobj->size);
 
     for (htentry = htobj->hashbucket[keyhash]; htentry != NULL; htentry = htentry->next)
-        if (XString_CompareWith(XObject_CAST(XVarSymObject_CAST(htentry->dataobject)->name), key->buf, key->__last_indx)) {
-            printf("ret dataobj\n");
+        if (XString_CompareWith(XObject_CAST(XVarSymObject_CAST(htentry->dataobject)->name), key->buf, key->__last_indx))
             return htentry->dataobject;
-        }
 
     return NULL;
 }
 
 void XVarSym_Forget(void *sym) {
+    if (sym == NULL)
+        return;
+
     XObject_Forget(XObject_CAST(XVarSymObject_CAST(sym)->name));
     XObject_Forget(XVarSymObject_CAST(sym)->varobj);
 
     free(sym);
+}
+
+void XSymbolTable_LinearDump(XObject *tab) {
+    XT_HTSize indx;
+    XHTEntryObject *ent;
+
+    for (indx = 0; indx < XHashTableObject_CAST(tab)->size; indx++)
+        for (ent = XHashTableObject_CAST(tab)->hashbucket[indx]; ent != NULL; ent = ent->next)
+            XVarSym_Dump(ent->dataobject);
 }

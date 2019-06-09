@@ -165,6 +165,9 @@ int XString_CompareWith(XObject *str, char *cmpstr, XT_StringSize size) {
 void XString_Forget(void *str) {
     XStringObject *strobj;
 
+    if (str == NULL)
+        return;
+
     strobj = XStringObject_CAST(str);
 
     free(strobj->buf);
@@ -189,5 +192,23 @@ char *XString_GetString(XObject *str) {
 }
 
 void XStringIter_Forget(void *iter) {
+    if (iter == NULL)
+        return;
+        
     free(iter);
+}
+
+XObject *XString_Duplicate(XObject *str) {
+    char ch;
+    XObject *newstr, *striter;
+
+    newstr = XString_Creat();
+    striter = XString_GetIter(str);
+
+    while ((ch = XStringIter_IterNext(striter)) != XSTRING_ENDOFITER)
+        XString_PushChar(newstr, ch);
+
+    XObject_Forget(striter);
+
+    return newstr;
 }

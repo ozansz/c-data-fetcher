@@ -49,10 +49,10 @@ XT_LEXTokenType XLEXToken_TypeFromString(XObject *str) {
     char ch;
     XObject *striter;
 
-    striter = XString_GetIter(str);
-
     if (XStringObject_CAST(str)->__last_indx == 0)
         return XLTT__ERR;
+
+    striter = XString_GetIter(str);
 
     while ((ch = XStringIter_IterNext(striter)) != XSTRING_ENDOFITER) {
         if (_is_letter(ch))
@@ -104,7 +104,7 @@ XT_LEXTokenListSize XLEX_AppendNode(XObject *lex, XT_LEXTokenType ttype, XObject
     if (ttype == XLTT_NNUM) {
         _tmpobj = dataobject;
         dataobject = XNumber_FromString(dataobject);
-        XString_Forget(_tmpobj);
+        XObject_Forget(_tmpobj);
     }
 
     tobj = XLEXToken_Creat(ttype, dataobject);
@@ -270,6 +270,13 @@ void _XLEXToken_Dump(XLEXTokenObject *tok) {
         default:
             break;
     }
+
+    printf(" <self: %p>", (void *)tok);
+
+    if (tok->dataobject != NULL)
+        printf(" <data: %p>", (void *)(tok->dataobject));
+    else
+        printf(" <data: NULL>");
 }
 
 void _XLEX_Dump(XObject *lex) {
@@ -283,19 +290,37 @@ void _XLEX_Dump(XObject *lex) {
 }
 
 void XLEXToken_Forget(void *tok) {
-    XObject_Forget(XLEXTokenObject_CAST(tok)->dataobject);
+    if (tok == NULL)
+        return;
+        
+    if (XLEXTokenObject_CAST(tok)->dataobject != NULL)
+        XObject_Forget(XLEXTokenObject_CAST(tok)->dataobject);
+
     free(tok);
 }
 
 void XLEX_Forget(void *lex) {
-    XLEXTokenObject *tok;
+    XLEXTokenObject *tok, *nexttok;
 
-    for (tok = XLEXObject_CAST(lex)->head; tok != NULL; tok = tok->next)
+    if (lex == NULL)
+        return;
+
+    for (tok = XLEXObject_CAST(lex)->head; tok != NULL; tok = nexttok) {
+        if (tok->next != NULL)
+            nexttok = tok->next;
+        else
+            nexttok = NULL;
+
         XObject_Forget(XObject_CAST(tok));
+    }
+        
 
     free(lex);
 }
 
 void XLEXIter_Forget(void *iter) {
+    if (iter == NULL)
+        return;
+        
     free(iter);
 }

@@ -1,6 +1,6 @@
 INCDIR = ./src
 CC = gcc
-CFLAGS = -Wall -ansi -pedantic-errors
+CFLAGS = -Wall -ansi -pedantic-errors -g
 INCLUDES = -I$(INCDIR)
 
 all: test

@@ -118,6 +118,9 @@ void _XHashTable_Debug(XObject *ht) {
 }
 
 void XHTEntry_Forget(void *ent) {
+    if (ent == NULL)
+        return;
+
     XObject_Forget(XHTEntryObject_CAST(ent)->dataobject);
     free(ent);
 }
@@ -125,6 +128,9 @@ void XHTEntry_Forget(void *ent) {
 void XHashTable_Forget(void *ht) {
     XT_HTSize indx;
     XHTEntryObject *ent, *nextent;
+
+    if (ht == NULL)
+        return;
 
     for (indx = 0; indx < XHashTableObject_CAST(ht)->size; indx++) {
         for (ent = XHashTableObject_CAST(ht)->hashbucket[indx]; ent != NULL; ) {
