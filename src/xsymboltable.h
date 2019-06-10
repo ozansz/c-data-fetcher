@@ -27,6 +27,9 @@ typedef struct _xvarsym {
     XObject *varobj;
 } XVarSymObject;
 
+#define Arrspec_Dim(sp) (sp.arr_dim)
+#define Arrspec_Ref(sp) (sp.dim_ref)
+
 #define XVarSymObject_CAST(objptr) ((XVarSymObject *)(objptr))
 #define XVarSymObject_ArrDim(objptr) (XVarSymObject_CAST(objptr)->arrspec.arr_dim)
 #define XVarSymObject_DimRef(objptr) (XVarSymObject_CAST(objptr)->arrspec.dim_ref)

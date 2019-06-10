@@ -46,9 +46,9 @@ XObject *XVarSymObject_Creat(XStringObject *name, XT_SymType type, XT_Number fil
     sym->file_pos = file_pos;
     sym->varobj = NULL;
 
-    XVarSymObject_ArrDim(sym) = arrspec.arr_dim;
-    XVarSymObject_DimRef(sym)[0] = arrspec.dim_ref[0];
-    XVarSymObject_DimRef(sym)[1] = arrspec.dim_ref[1];
+    XVarSymObject_ArrDim(sym) = Arrspec_Dim(arrspec);
+    XVarSymObject_DimRef(sym)[0] = Arrspec_Ref(arrspec)[0];
+    XVarSymObject_DimRef(sym)[1] = Arrspec_Ref(arrspec)[1];
 
     sym->bytesize = __var_size(sym->type);
 
@@ -108,7 +108,7 @@ void XVarSym_AssignValueFromStream(XObject *sym, XObject *ht, FILE *stream) {
                     return;
                 }
 
-                if (XVarSymObject_CAST(refobj)->arrspec.arr_dim != 0) {
+                if (XVarSymObject_ArrDim(refobj) != 0) {
                     printf("[!] XVarSym_AssignValueFromStream: Ref object <%p> of symbol <%p> is not in type scalar ! (arrspec.arr_dim: %d)\n", (void *)(XVarSymObject_DimRef(sym)[1]), (void *)sym, XVarSymObject_ArrDim(refobj));
                     return;
                 }
@@ -185,17 +185,17 @@ XObject *XSymbolTable_ConstructFromLEX(XObject *lex, FILE *datastream) {
             tokarr[tokindx++] = currtok;
         else {
             if (tokindx == 8) {
-                arrspec.arr_dim = 2;
-                arrspec.dim_ref[0] = XLEXTokenObject_CAST(tokarr[3])->dataobject;
-                arrspec.dim_ref[1] = XLEXTokenObject_CAST(tokarr[6])->dataobject;
+                Arrspec_Dim(arrspec) = 2;
+                Arrspec_Ref(arrspec)[0] = XLEXTokenObject_CAST(tokarr[3])->dataobject;
+                Arrspec_Ref(arrspec)[1] = XLEXTokenObject_CAST(tokarr[6])->dataobject;
             } else if (tokindx == 5) {
-                arrspec.arr_dim = 1;
-                arrspec.dim_ref[0] = XLEXTokenObject_CAST(tokarr[3])->dataobject;
-                arrspec.dim_ref[1] = NULL;
+                Arrspec_Dim(arrspec) = 1;
+                Arrspec_Ref(arrspec)[0] = XLEXTokenObject_CAST(tokarr[3])->dataobject;
+                Arrspec_Ref(arrspec)[1] = NULL;
             } else {
-                arrspec.arr_dim = 0;
-                arrspec.dim_ref[0] = NULL;
-                arrspec.dim_ref[1] = NULL;
+                Arrspec_Dim(arrspec) = 0;
+                Arrspec_Ref(arrspec)[0] = NULL;
+                Arrspec_Ref(arrspec)[1] = NULL;
             }
 
             switch (XLEXTokenObject_CAST(tokarr[0])->type)

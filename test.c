@@ -65,7 +65,7 @@ int main(int argc, char **argv, char **envp) {
                     data_offset = XVarSymObject_CAST(symbol)->file_pos;
                     dimref1 = tokarr[2]->dataobject;
 
-                    if (dimref1->ob_head.type != XType_Number)
+                    if (XObject_TYPE(dimref1) != XType_Number)
                         dimref1 = XVarSymObject_CAST(XSymbolTable_RetrieveObject(symtab, XStringObject_CAST(dimref1)))->varobj;
                     
                     data_offset += __var_size(XVarSymObject_CAST(symbol)->type) * XNumberObject_CAST(dimref1)->val;
@@ -75,10 +75,10 @@ int main(int argc, char **argv, char **envp) {
                     dimref1 = tokarr[2]->dataobject;
                     dimref2 = tokarr[5]->dataobject;
 
-                    if (dimref1->ob_head.type != XType_Number)
+                    if (XObject_TYPE(dimref1) != XType_Number)
                         dimref1 = XVarSymObject_CAST(XSymbolTable_RetrieveObject(symtab, XStringObject_CAST(dimref1)))->varobj;
 
-                    if (dimref2->ob_head.type != XType_Number)
+                    if (XObject_TYPE(dimref2) != XType_Number)
                         dimref2 = XVarSymObject_CAST(XSymbolTable_RetrieveObject(symtab, XStringObject_CAST(dimref2)))->varobj;
 
                     data_offset += __var_size(XVarSymObject_CAST(symbol)->type) * (XNumberObject_CAST(dimref1)->val * XNumberObject_CAST(XVarSymObject_DimRef(symbol)[1])->val + XNumberObject_CAST(dimref2)->val);
