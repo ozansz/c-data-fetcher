@@ -93,8 +93,10 @@ void XVarSym_AssignValueFromStream(XObject *sym, XObject *ht, FILE *stream) {
                 }
 
                 _ref_val = XNumberObject_CAST(XVarSymObject_CAST(refobj)->varobj)->val;
-                symobj->arrspec.dim_ref[0] = XNumber_Creat(&_ref_val);
-            }
+            } else
+                _ref_val = XNumberObject_CAST(symobj->arrspec.dim_ref[0])->val;
+
+            symobj->arrspec.dim_ref[0] = XNumber_Creat(&_ref_val);
         }
 
         if (symobj->arrspec.arr_dim == 2) {
@@ -112,8 +114,10 @@ void XVarSym_AssignValueFromStream(XObject *sym, XObject *ht, FILE *stream) {
                 }
 
                 _ref_val = XNumberObject_CAST(XVarSymObject_CAST(refobj)->varobj)->val;
-                symobj->arrspec.dim_ref[1] = XNumber_Creat(&_ref_val);
-            }
+            } else
+                _ref_val = XNumberObject_CAST(symobj->arrspec.dim_ref[1])->val;
+
+            symobj->arrspec.dim_ref[1] = XNumber_Creat(&_ref_val);
         }
     }
 

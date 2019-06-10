@@ -3,13 +3,16 @@ CC = gcc
 CFLAGS = -Wall -ansi -pedantic-errors -g
 INCLUDES = -I$(INCDIR)
 
-all: test
+all: test cleanobj
 
 test:
 	$(CC) $(CFLAGS) $(INCLUDES) -o test test.c $(INCDIR)/*.c
-	rm -f *.o
 
 .PHONY: clean
+.PHONY: cleanobj
+
+cleanobj:
+	rm -f *.o
 
 clean:
-	rm -f test *.o
+	rm -f test test.exe *.o
