@@ -57,8 +57,8 @@ XObject *XVarSymObject_Creat(XStringObject *name, XT_SymType type, XT_Number fil
 
 void XVarSym_AssignValueFromStream(XObject *sym, XObject *ht, FILE *stream) {
     long seek_store;
-    XT_Number _ref_val;
-    XT_FPNumber _fpref_val;
+    XT_Number _ref_val = 0;
+    XT_FPNumber _fpref_val = 0;
     XVarSymObject *symobj;
     XObject *refobj;
 
