@@ -10,6 +10,8 @@
 #include "xnumber.h"
 #include "xhashtable.h"
 
+#define XSYMBOL_REPR_SIZE   64
+
 struct __xvarsym_arrspec {
     int arr_dim;
     XObject *dim_ref[2];

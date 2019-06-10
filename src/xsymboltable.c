@@ -300,9 +300,9 @@ char *XVarSym_GetReprWithFileOffset(XObject *sym, long offset, FILE *stream) {
     XVarSymObject *symobj;
 
     symobj = XVarSymObject_CAST(sym);
-    repr = (char *) malloc(30 * sizeof(char));
+    repr = (char *) malloc(XSYMBOL_REPR_SIZE * sizeof(char));
     
-    for (_ctr = 0; _ctr < 30; _ctr++)
+    for (_ctr = 0; _ctr < XSYMBOL_REPR_SIZE; _ctr++)
         repr[_ctr] = 0;
 
     /*if (symobj->arrspec.arr_dim == 0) {
@@ -339,11 +339,11 @@ char *XVarSym_GetReprWithFileOffset(XObject *sym, long offset, FILE *stream) {
     switch (symobj->type) {
         case XSYT_char:
             fread(&crval, sizeof(char), 1, stream);
-            snprintf(repr, sizeof(char), "%d", crval);
+            snprintf(repr, XSYMBOL_REPR_SIZE, "%d", crval);
             break;
         case XSYT_uchar:
             fread(&ucrval, sizeof(unsigned char), 1, stream);
-            snprintf(repr, sizeof(unsigned char), "%ud", ucrval);
+            snprintf(repr, XSYMBOL_REPR_SIZE, "%ud", ucrval);
             break;
         case XSYT_int:
             fread(&irval, sizeof(int), 1, stream);
@@ -351,19 +351,19 @@ char *XVarSym_GetReprWithFileOffset(XObject *sym, long offset, FILE *stream) {
             break;
         case XSYT_uint:
             fread(&uirval, sizeof(unsigned int), 1, stream);
-            snprintf(repr, sizeof(unsigned int), "%ud", uirval);
+            snprintf(repr, XSYMBOL_REPR_SIZE, "%ud", uirval);
             break;
         case XSYT_long:
             fread(&lrval, sizeof(long), 1, stream);
-            snprintf(repr, sizeof(long), "%ld", lrval);
+            snprintf(repr, XSYMBOL_REPR_SIZE, "%ld", lrval);
             break;
         case XSYT_float:
             fread(&frval, sizeof(float), 1, stream);
-            snprintf(repr, sizeof(float), "%f", frval);
+            snprintf(repr, XSYMBOL_REPR_SIZE, "%f", frval);
             break;
         case XSYT_double:
             fread(&drval, sizeof(double), 1, stream);
-            snprintf(repr, sizeof(double), "%lf", drval);
+            snprintf(repr, XSYMBOL_REPR_SIZE, "%lf", drval);
             break;
         default:
             return NULL;
