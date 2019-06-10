@@ -347,7 +347,7 @@ char *XVarSym_GetReprWithFileOffset(XObject *sym, long offset, FILE *stream) {
             break;
         case XSYT_uchar:
             fread(&ucrval, sizeof(unsigned char), 1, stream);
-            snprintf(repr, XSYMBOL_REPR_SIZE, "%ud", ucrval);
+            snprintf(repr, XSYMBOL_REPR_SIZE, "%u", ucrval);
             break;
         case XSYT_int:
             fread(&irval, sizeof(int), 1, stream);
@@ -355,7 +355,7 @@ char *XVarSym_GetReprWithFileOffset(XObject *sym, long offset, FILE *stream) {
             break;
         case XSYT_uint:
             fread(&uirval, sizeof(unsigned int), 1, stream);
-            snprintf(repr, XSYMBOL_REPR_SIZE, "%ud", uirval);
+            snprintf(repr, XSYMBOL_REPR_SIZE, "%u", uirval);
             break;
         case XSYT_long:
             fread(&lrval, sizeof(long), 1, stream);
