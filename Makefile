@@ -3,7 +3,10 @@ CC = gcc
 CFLAGS = -Wall -ansi -pedantic-errors -g
 INCLUDES = -I$(INCDIR)
 
-all: test cleanobj
+all: the cleanobj
+
+the:
+	$(CC) $(CFLAGS) -o the3 the3.c
 
 test:
 	$(CC) $(CFLAGS) $(INCLUDES) -o test test.c $(INCDIR)/*.c
