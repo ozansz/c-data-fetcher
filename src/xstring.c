@@ -28,8 +28,8 @@ XObject *XString_Creat(void) {
     if (str->buf == NULL)
         return NULL;
 
-    str->ob_head.type = XType_String;
-    str->ob_head.destructor = XString_Forget;
+    XObject_TYPE(str) = XType_String;
+    XObject_DESTRUCTOR(str) = XString_Forget;
 
     str->size = XSTRING_INITIAL_SIZE;
     str->__last_indx = 0;
@@ -84,8 +84,8 @@ XObject *XString_GetIter(XObject *str) {
     if (iter == NULL)
         return NULL;
 
-    iter->ob_head.type = XType_StringIter;
-    iter->ob_head.destructor = XStringIter_Forget;
+    XObject_TYPE(iter) = XType_StringIter;
+    XObject_DESTRUCTOR(iter) = XStringIter_Forget;
 
     iter->iterindex = 0;
     iter->str = XStringObject_CAST(str);

@@ -56,7 +56,7 @@ int main(int argc, char **argv, char **envp) {
         else {
             symbol = XSymbolTable_RetrieveObject(symtab, XStringObject_CAST(tokarr[0]->dataobject));
 
-            switch (XVarSymObject_CAST(symbol)->arrspec.arr_dim)
+            switch (XVarSymObject_ArrDim(symbol))
             {
                 case 0:
                     data_offset = XVarSymObject_CAST(symbol)->file_pos;
@@ -81,7 +81,7 @@ int main(int argc, char **argv, char **envp) {
                     if (dimref2->ob_head.type != XType_Number)
                         dimref2 = XVarSymObject_CAST(XSymbolTable_RetrieveObject(symtab, XStringObject_CAST(dimref2)))->varobj;
 
-                    data_offset += __var_size(XVarSymObject_CAST(symbol)->type) * (XNumberObject_CAST(dimref1)->val * XNumberObject_CAST(XVarSymObject_CAST(symbol)->arrspec.dim_ref[1])->val + XNumberObject_CAST(dimref2)->val);
+                    data_offset += __var_size(XVarSymObject_CAST(symbol)->type) * (XNumberObject_CAST(dimref1)->val * XNumberObject_CAST(XVarSymObject_DimRef(symbol)[1])->val + XNumberObject_CAST(dimref2)->val);
             }
 
             symrepr = XVarSym_GetReprWithFileOffset(symbol, data_offset, datafile);

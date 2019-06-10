@@ -13,8 +13,8 @@ XObject *XNumber_Creat(XT_Number *valptr) {
     if (num == NULL)
         return NULL;
 
-    num->ob_head.type = XType_Number;
-    num->ob_head.destructor = XNumber_Forget;
+    XObject_TYPE(num) = XType_Number;
+    XObject_DESTRUCTOR(num) = XNumber_Forget;
 
     num->val = *valptr;
 
@@ -44,8 +44,8 @@ XObject *XFPNumber_Creat(XT_FPNumber *valptr) {
     if (fpnum == NULL)
         return NULL;
 
-    fpnum->ob_head.type = XType_FPNumber;
-    fpnum->ob_head.destructor = XFPNumber_Forget;
+    XObject_TYPE(fpnum) = XType_FPNumber;
+    XObject_DESTRUCTOR(fpnum) = XFPNumber_Forget;
 
     fpnum->val = *valptr;
 

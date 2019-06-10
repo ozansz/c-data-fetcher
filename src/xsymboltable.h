@@ -28,6 +28,8 @@ typedef struct _xvarsym {
 } XVarSymObject;
 
 #define XVarSymObject_CAST(objptr) ((XVarSymObject *)(objptr))
+#define XVarSymObject_ArrDim(objptr) (XVarSymObject_CAST(objptr)->arrspec.arr_dim)
+#define XVarSymObject_DimRef(objptr) (XVarSymObject_CAST(objptr)->arrspec.dim_ref)
 
 XObject *XVarSymObject_Creat(XStringObject *name, XT_SymType type, XT_Number file_pos, struct __xvarsym_arrspec arrspec);
 void XVarSym_AssignValueFromStream(XObject *sym, XObject *ht, FILE *stream);

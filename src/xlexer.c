@@ -14,8 +14,8 @@ XObject *XLEX_Creat(void) {
     if (obj == NULL)
         return NULL;
 
-    obj->ob_head.type = XType_LEX;
-    obj->ob_head.destructor = XLEX_Forget;
+    XObject_TYPE(obj) = XType_LEX;
+    XObject_DESTRUCTOR(obj) = XLEX_Forget;
 
     obj->head = NULL;
     obj->size = 0;
@@ -32,8 +32,8 @@ XObject *XLEXToken_Creat(XT_LEXTokenType ttype, XObject *dataobject) {
     if (tobj == NULL)
         return NULL;
 
-    tobj->ob_head.type = XType_LEXToken;
-    tobj->ob_head.destructor = XLEXToken_Forget;
+    XObject_TYPE(tobj) = XType_LEXToken;
+    XObject_DESTRUCTOR(tobj) = XLEXToken_Forget;
 
     tobj->type = ttype;
     tobj->dataobject = dataobject;
@@ -136,8 +136,8 @@ XObject *XLEX_GetIter(XObject *lex) {
     if (iobj == NULL)
         return NULL;
 
-    iobj->ob_head.type = XType_LEXIter;
-    iobj->ob_head.destructor = XLEXIter_Forget;
+    XObject_TYPE(iobj) = XType_LEXIter;
+    XObject_DESTRUCTOR(iobj) = XLEXIter_Forget;
 
     iobj->currtok = lexobj->head;
     iobj->iterindex = 0;

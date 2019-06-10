@@ -38,17 +38,17 @@ XObject *XVarSymObject_Creat(XStringObject *name, XT_SymType type, XT_Number fil
     if (sym == NULL)
         return NULL;
 
-    sym->ob_head.type = XType_VarSym;
-    sym->ob_head.destructor = XVarSym_Forget;
+    XObject_TYPE(sym) = XType_VarSym;
+    XObject_DESTRUCTOR(sym) = XVarSym_Forget;
 
     sym->name = name;
     sym->type = type;
     sym->file_pos = file_pos;
     sym->varobj = NULL;
 
-    sym->arrspec.arr_dim = arrspec.arr_dim;
-    sym->arrspec.dim_ref[0] = arrspec.dim_ref[0];
-    sym->arrspec.dim_ref[1] = arrspec.dim_ref[1];
+    XVarSymObject_ArrDim(sym) = arrspec.arr_dim;
+    XVarSymObject_DimRef(sym)[0] = arrspec.dim_ref[0];
+    XVarSymObject_DimRef(sym)[1] = arrspec.dim_ref[1];
 
     sym->bytesize = __var_size(sym->type);
 
@@ -64,7 +64,7 @@ void XVarSym_AssignValueFromStream(XObject *sym, XObject *ht, FILE *stream) {
 
     symobj = XVarSymObject_CAST(sym);
 
-    if (symobj->arrspec.arr_dim == 0) {
+    if (XVarSymObject_ArrDim(sym) == 0) {
         seek_store = ftell(stream);
         fseek(stream, symobj->file_pos, SEEK_SET);
 
@@ -78,54 +78,54 @@ void XVarSym_AssignValueFromStream(XObject *sym, XObject *ht, FILE *stream) {
         
         fseek(stream, seek_store, SEEK_SET);
     } else {
-        if (symobj->arrspec.arr_dim >= 1) {
-            if (symobj->arrspec.dim_ref[0]->ob_head.type == XType_String) {
-                refobj = XSymbolTable_RetrieveObject(ht, XStringObject_CAST(symobj->arrspec.dim_ref[0]));
+        if (XVarSymObject_ArrDim(sym) >= 1) {
+            if (XObject_TYPE(XVarSymObject_DimRef(sym)[0]) == XType_String) {
+                refobj = XSymbolTable_RetrieveObject(ht, XStringObject_CAST(XVarSymObject_DimRef(sym)[0]));
                 
                 if (refobj == NULL) {
-                    printf("[!] XVarSym_AssignValueFromStream: Ref object <%p> of symbol <%p> is not in table <%p> !\n", (void *)(symobj->arrspec.dim_ref[0]), (void *)sym, (void *)ht);
+                    printf("[!] XVarSym_AssignValueFromStream: Ref object <%p> of symbol <%p> is not in table <%p> !\n", (void *)(XVarSymObject_DimRef(sym)[0]), (void *)sym, (void *)ht);
                     return;
                 }
 
-                if (XVarSymObject_CAST(refobj)->arrspec.arr_dim != 0) {
-                    printf("[!] XVarSym_AssignValueFromStream: Ref object <%p> of symbol <%p> is not in type scalar ! (arrspec.arr_dim: %d)\n", (void *)(symobj->arrspec.dim_ref[0]), (void *)sym, XVarSymObject_CAST(refobj)->arrspec.arr_dim);
+                if (XVarSymObject_ArrDim(refobj) != 0) {
+                    printf("[!] XVarSym_AssignValueFromStream: Ref object <%p> of symbol <%p> is not in type scalar ! (arrspec.arr_dim: %d)\n", (void *)(XVarSymObject_DimRef(sym)[0]), (void *)sym, XVarSymObject_ArrDim(refobj));
                     return;
                 }
 
                 _ref_val = XNumberObject_CAST(XVarSymObject_CAST(refobj)->varobj)->val;
             } else
-                _ref_val = XNumberObject_CAST(symobj->arrspec.dim_ref[0])->val;
+                _ref_val = XNumberObject_CAST(XVarSymObject_DimRef(sym)[0])->val;
 
-            symobj->arrspec.dim_ref[0] = XNumber_Creat(&_ref_val);
+            XVarSymObject_DimRef(sym)[0] = XNumber_Creat(&_ref_val);
         }
 
-        if (symobj->arrspec.arr_dim == 2) {
-            if (symobj->arrspec.dim_ref[1]->ob_head.type == XType_String) {
-                refobj = XSymbolTable_RetrieveObject(ht, XStringObject_CAST(symobj->arrspec.dim_ref[1]));
+        if (XVarSymObject_ArrDim(sym) == 2) {
+            if (XObject_TYPE(XVarSymObject_DimRef(sym)[1]) == XType_String) {
+                refobj = XSymbolTable_RetrieveObject(ht, XStringObject_CAST(XVarSymObject_DimRef(sym)[1]));
                 
                 if (refobj == NULL) {
-                    printf("[!] XVarSym_AssignValueFromStream: Ref object <%p> of symbol <%p> is not in table <%p> !\n", (void *)(symobj->arrspec.dim_ref[1]), (void *)sym, (void *)ht);
+                    printf("[!] XVarSym_AssignValueFromStream: Ref object <%p> of symbol <%p> is not in table <%p> !\n", (void *)(XVarSymObject_DimRef(sym)[1]), (void *)sym, (void *)ht);
                     return;
                 }
 
                 if (XVarSymObject_CAST(refobj)->arrspec.arr_dim != 0) {
-                    printf("[!] XVarSym_AssignValueFromStream: Ref object <%p> of symbol <%p> is not in type scalar ! (arrspec.arr_dim: %d)\n", (void *)(symobj->arrspec.dim_ref[1]), (void *)sym, XVarSymObject_CAST(refobj)->arrspec.arr_dim);
+                    printf("[!] XVarSym_AssignValueFromStream: Ref object <%p> of symbol <%p> is not in type scalar ! (arrspec.arr_dim: %d)\n", (void *)(XVarSymObject_DimRef(sym)[1]), (void *)sym, XVarSymObject_ArrDim(refobj));
                     return;
                 }
 
                 _ref_val = XNumberObject_CAST(XVarSymObject_CAST(refobj)->varobj)->val;
             } else
-                _ref_val = XNumberObject_CAST(symobj->arrspec.dim_ref[1])->val;
+                _ref_val = XNumberObject_CAST(XVarSymObject_DimRef(sym)[1])->val;
 
-            symobj->arrspec.dim_ref[1] = XNumber_Creat(&_ref_val);
+            XVarSymObject_DimRef(sym)[1] = XNumber_Creat(&_ref_val);
         }
     }
 
-    if (symobj->arrspec.arr_dim == 1)
-        symobj->bytesize = __var_size(symobj->type) * XNumberObject_CAST(symobj->arrspec.dim_ref[0])->val;
+    if (XVarSymObject_ArrDim(sym) == 1)
+        symobj->bytesize = __var_size(symobj->type) * XNumberObject_CAST(XVarSymObject_DimRef(sym)[0])->val;
 
-    if (symobj->arrspec.arr_dim == 2)
-        symobj->bytesize = __var_size(symobj->type) * XNumberObject_CAST(symobj->arrspec.dim_ref[0])->val * XNumberObject_CAST(symobj->arrspec.dim_ref[1])->val;
+    if (XVarSymObject_ArrDim(sym) == 2)
+        symobj->bytesize = __var_size(symobj->type) * XNumberObject_CAST(XVarSymObject_DimRef(sym)[0])->val * XNumberObject_CAST(XVarSymObject_DimRef(sym)[1])->val;
 }
 
 void XVarSym_Dump(XObject *sym) {
@@ -225,8 +225,8 @@ XObject *XSymbolTable_ConstructFromLEX(XObject *lex, FILE *datastream) {
                     symtype = XSYT_int;
             }
 
-            if (XLEXTokenObject_CAST(tokarr[1])->dataobject->ob_head.type != XType_String) {
-                printf("[!] ERR ident is not str! (is %d)", XLEXTokenObject_CAST(tokarr[1])->dataobject->ob_head.type);
+            if (XObject_TYPE(XLEXTokenObject_CAST(tokarr[1])->dataobject) != XType_String) {
+                printf("[!] ERR ident is not str! (is %d)", XObject_TYPE(XLEXTokenObject_CAST(tokarr[1])->dataobject));
                 return NULL;
             }
 

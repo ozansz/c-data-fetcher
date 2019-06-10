@@ -14,8 +14,8 @@ XObject *XHTEntry_Creat(XObject *dataobject) {
     if (ent == NULL)
         return NULL;
 
-    ent->ob_head.type = XType_HashTableEntry;
-    ent->ob_head.destructor = XHTEntry_Forget;
+    XObject_TYPE(ent) = XType_HashTableEntry;
+    XObject_DESTRUCTOR(ent) = XHTEntry_Forget;
 
     ent->dataobject = dataobject;
     ent->key = -1;
@@ -36,8 +36,8 @@ XObject *XHashTable_Creat(XT_HTSize size, XT_HTHashFuncPtr hashfn) {
     if (ht == NULL || bucket == NULL)
         return NULL;
 
-    ht->ob_head.type = XType_HashTable;
-    ht->ob_head.destructor = XHashTable_Forget;
+    XObject_TYPE(ht) = XType_HashTable;
+    XObject_DESTRUCTOR(ht) = XHashTable_Forget;
 
     ht->hashbucket = bucket;
     ht->hashfn = hashfn;
@@ -110,7 +110,7 @@ void _XHashTable_Debug(XObject *ht) {
             printf("NULL |\n");
         else {
             for (; ent != NULL; ent = ent->next)
-                printf("%p (type: %d) | ", (void *)(ent->dataobject), ent->dataobject->ob_head.type);
+                printf("%p (type: %d) | ", (void *)(ent->dataobject), XObject_TYPE(ent->dataobject));
             
             printf("\n");
         }
