@@ -39,4 +39,6 @@ void XVarSym_Forget(void *sym);
 
 void XSymbolTable_LinearDump(XObject *tab);
 
+char *XVarSym_GetReprWithFileOffset(XObject *sym, long offset, FILE *stream);
+
 #endif

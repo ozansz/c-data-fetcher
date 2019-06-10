@@ -210,15 +210,16 @@ XObject *XLEX_LexString(XObject *str) {
         } else {
             XString_PushChar(buffer, ch);
         }
+
     }
 
-    if (XStringObject_CAST(buffer)->size > 0) {
+
+    if (XStringObject_CAST(buffer)->__last_indx > 0) {
         ttype = XLEXToken_TypeFromString(buffer);
         XLEX_AppendNode(lex, ttype, buffer);
     }
 
     XObject_Forget(striter);
-    XObject_Forget(buffer);
 
     return XObject_CAST(lex);
 }

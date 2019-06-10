@@ -52,8 +52,6 @@ XObject *XVarSymObject_Creat(XStringObject *name, XT_SymType type, XT_Number fil
 
     sym->bytesize = __var_size(sym->type);
 
-    /* DO THE BYTESIZE CALC HERE */
-
     return XObject_CAST(sym);
 }
 
@@ -130,7 +128,7 @@ void XVarSym_Dump(XObject *sym) {
     char *name;
 
     name = XString_GetString(XObject_CAST(XVarSymObject_CAST(sym)->name));
-    
+
     printf("\nSymbol at <%p>", (void *)sym);
     printf("\n  name      : %s", name);
     printf("\n  type      : %d", XVarSymObject_CAST(sym)->type);
@@ -288,4 +286,90 @@ void XSymbolTable_LinearDump(XObject *tab) {
     for (indx = 0; indx < XHashTableObject_CAST(tab)->size; indx++)
         for (ent = XHashTableObject_CAST(tab)->hashbucket[indx]; ent != NULL; ent = ent->next)
             XVarSym_Dump(ent->dataobject);
+}
+
+char *XVarSym_GetReprWithFileOffset(XObject *sym, long offset, FILE *stream) {
+    char *repr, crval;
+    unsigned char ucrval;
+    int irval, _ctr;
+    unsigned int uirval;
+    long seek_store, lrval;
+    float frval;
+    double drval;
+
+    XVarSymObject *symobj;
+
+    symobj = XVarSymObject_CAST(sym);
+    repr = (char *) malloc(30 * sizeof(char));
+    
+    for (_ctr = 0; _ctr < 30; _ctr++)
+        repr[_ctr] = 0;
+
+    /*if (symobj->arrspec.arr_dim == 0) {
+        switch (symobj->type) {
+            case XSYT_char:
+                snprintf(repr, sizeof(char), "%c", (char)(XNumberObject_CAST(symobj->varobj)->val));
+                break;
+            case XSYT_uchar:
+                snprintf(repr, sizeof(unsigned char), "%d", (unsigned char)(XNumberObject_CAST(symobj->varobj)->val));
+                break;
+            case XSYT_int:
+                snprintf(repr, sizeof(int), "%d", (int)(XNumberObject_CAST(symobj->varobj)->val));
+                break;
+            case XSYT_uint:
+                snprintf(repr, sizeof(unsigned int), "%u", (unsigned int)(XNumberObject_CAST(symobj->varobj)->val));
+                break;
+            case XSYT_long:
+                snprintf(repr, sizeof(long), "%ld", (long)(XNumberObject_CAST(symobj->varobj)->val));
+                break;
+            case XSYT_float:
+                snprintf(repr, sizeof(float), "%f", (float)(XFPNumberObject_CAST(symobj->varobj)->val));
+                break;
+            case XSYT_double:
+                snprintf(repr, sizeof(double), "%g", (double)(XFPNumberObject_CAST(symobj->varobj)->val));
+                break;
+        }
+
+        return repr;
+    }*/
+
+    seek_store = ftell(stream);
+    fseek(stream, offset, SEEK_SET);
+
+    switch (symobj->type) {
+        case XSYT_char:
+            fread(&crval, sizeof(char), 1, stream);
+            snprintf(repr, sizeof(char), "%d", crval);
+            break;
+        case XSYT_uchar:
+            fread(&ucrval, sizeof(unsigned char), 1, stream);
+            snprintf(repr, sizeof(unsigned char), "%ud", ucrval);
+            break;
+        case XSYT_int:
+            fread(&irval, sizeof(int), 1, stream);
+            snprintf(repr, sizeof(int), "%d", irval);
+            break;
+        case XSYT_uint:
+            fread(&uirval, sizeof(unsigned int), 1, stream);
+            snprintf(repr, sizeof(unsigned int), "%ud", uirval);
+            break;
+        case XSYT_long:
+            fread(&lrval, sizeof(long), 1, stream);
+            snprintf(repr, sizeof(long), "%ld", lrval);
+            break;
+        case XSYT_float:
+            fread(&frval, sizeof(float), 1, stream);
+            snprintf(repr, sizeof(float), "%f", frval);
+            break;
+        case XSYT_double:
+            fread(&drval, sizeof(double), 1, stream);
+            snprintf(repr, sizeof(double), "%lf", drval);
+            break;
+        default:
+            return NULL;
+    }
+
+    fseek(stream, seek_store, SEEK_SET);
+
+    return repr;
 }

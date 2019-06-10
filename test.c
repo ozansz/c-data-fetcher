@@ -9,11 +9,13 @@
 int main(int argc, char **argv, char **envp) {
     XObject *str, *lex, *symtab;
     XObject *lexiter, *currtok, *symbol;
-    XLEXTokenObject *tokarr[8];
+    XObject *dimref1, *dimref2;
+    XLEXTokenObject *tokarr[6];
     XT_Number tokindx;
 
     int _statc = 0;
-    char *fnam;
+    char *fnam, *symrepr;
+    long data_offset;
     FILE *datafile;
 
     setvbuf(stdout, NULL, 0, 0);
@@ -35,7 +37,6 @@ int main(int argc, char **argv, char **envp) {
     XObject_Forget(str);
 
     symtab = XSymbolTable_ConstructFromLEX(lex, datafile);
-    _XHashTable_Debug(symtab);
 
     XObject_Forget(lex);
 
@@ -49,21 +50,54 @@ int main(int argc, char **argv, char **envp) {
     lexiter = XLEX_GetIter(lex);
     tokindx = 0;
 
-    while ((currtok = XLEXIter_IterNext(lexiter, &_statc)) != NULL || tokindx > 0) {
+    while ((currtok = XLEXIter_IterNext(lexiter, &_statc)) != NULL || tokindx > 0) {    
         if (currtok != NULL && XLEXTokenObject_CAST(currtok)->type != XLTT_COMMA)
             tokarr[tokindx++] = XLEXTokenObject_CAST(currtok);
         else {
             symbol = XSymbolTable_RetrieveObject(symtab, XStringObject_CAST(tokarr[0]->dataobject));
-            XVarSym_Dump(symbol);
 
+            switch (XVarSymObject_CAST(symbol)->arrspec.arr_dim)
+            {
+                case 0:
+                    data_offset = XVarSymObject_CAST(symbol)->file_pos;
+                    break;
+                case 1:
+                    data_offset = XVarSymObject_CAST(symbol)->file_pos;
+                    dimref1 = tokarr[2]->dataobject;
+
+                    if (dimref1->ob_head.type != XType_Number)
+                        dimref1 = XSymbolTable_RetrieveObject(symtab, XStringObject_CAST(dimref1));
+                    
+                    data_offset += __var_size(XVarSymObject_CAST(symbol)->type) * XNumberObject_CAST(dimref1)->val;
+                    break;
+                case 2:
+                    data_offset = XVarSymObject_CAST(symbol)->file_pos;
+                    dimref1 = tokarr[2]->dataobject;
+                    dimref2 = tokarr[5]->dataobject;
+
+                    if (dimref1->ob_head.type != XType_Number)
+                        dimref1 = XSymbolTable_RetrieveObject(symtab, XStringObject_CAST(dimref1));
+
+                    if (dimref2->ob_head.type != XType_Number)
+                        dimref2 = XSymbolTable_RetrieveObject(symtab, XStringObject_CAST(dimref2));
+
+                    data_offset += __var_size(XVarSymObject_CAST(symbol)->type) * (XNumberObject_CAST(dimref1)->val * XNumberObject_CAST(XVarSymObject_CAST(symbol)->arrspec.dim_ref[1])->val + XNumberObject_CAST(dimref2)->val);
+            }
+
+            symrepr = XVarSym_GetReprWithFileOffset(symbol, data_offset, datafile);
+
+            if (symrepr != NULL) {
+                printf("%s\n", symrepr);
+                free(symrepr);
+            } else 
+                printf("Symbol got NULL repr!\n");
+                
             tokarr[0] = NULL;
             tokarr[1] = NULL;
             tokarr[2] = NULL;
             tokarr[3] = NULL;
             tokarr[4] = NULL;
             tokarr[5] = NULL;
-            tokarr[6] = NULL;
-            tokarr[7] = NULL;
 
             tokindx = 0;
         }
